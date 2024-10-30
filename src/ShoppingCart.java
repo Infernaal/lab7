@@ -85,19 +85,20 @@ public class ShoppingCart{
      *    last line: 31                              $999050.60
      * if no items in cart returns "No items." string.
      */
-    public String formatTicket(){
+    private String getFormattedTicketTable(double total){
+
         if (items.size() == 0)
             return "No items.";
+
         List<String[]> lines = new ArrayList<String[]>();
         String[] header = {"#","Item","Price","Quan.","Discount","Total"};
         int[] align = new int[] { 1, -1, 1, 1, 1, 1 };
         // formatting each line
-        double total = 0.00;
+        total = 0.00;
         int index = 0;
-
-        for (Item item : items) {
-            item.setDiscount( calculateDiscount(item.getItemType(), item.getQuantity()));
-            item.setTotalPrice(item.getPrice() * item.getQuantity() * (100.00 - item.getDiscount()) / 100.00);
+        for (Item item : items){
+            int discount = calculateDiscount(item.getItemType(), item.getQuantity());
+            item.setTotalPrice(item.getPrice() * item.getQuantity() * (100.00 - item.getDiscount())/100.00);
             lines.add(new String[]{
                     String.valueOf(++index),
                     item.getTitle(),
@@ -108,9 +109,13 @@ public class ShoppingCart{
             });
             total += item.getTotalPrice();
         }
-        String[] footer = { String.valueOf(index),"","","","",
-                MONEY.format(total) };
-        // formatting table
+
+        String[] footer = {
+                String.valueOf(index),
+                "","","","",
+                MONEY.format(total)
+        };
+
         // column max length
         int[] width = new int[]{0,0,0,0,0,0};
         for (String[] line : lines)
@@ -123,13 +128,18 @@ public class ShoppingCart{
         for (int w : width)
             lineLength += w;
         StringBuilder sb = new StringBuilder();
-
         // header
-        appendFormattedLine(sb, header, align, width, true);
-        appendSeparator(sb, lineLength); // lines
+        appendFormattedLine(sb, header, align, width, true); // separator
+        appendSeparator(sb, lineLength);
+        // lines
         for (String[] line : lines) {
             appendSeparator(sb, lineLength);
         }
+
+        if(lines.size() > 0){
+            appendSeparator(sb, lineLength);
+        }
+
         // footer
         appendFormattedLine(sb, footer, align, width, false);
         return sb.toString();
