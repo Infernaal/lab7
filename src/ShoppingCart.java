@@ -20,7 +20,7 @@ public class ShoppingCart{
         cart.addItem("Banana", 20.00, 4, ItemType.SECOND_FREE);
         cart.addItem("A long piece of toilet paper", 17.20, 1, ItemType.SALE);
         cart.addItem("Nails", 2.00, 500, ItemType.REGULAR);
-        System.out.println(cart.formatTicket());
+        System.out.println(cart.getFormattedTicketTable());
     }
 
     /** Adds new item.
@@ -71,6 +71,23 @@ public class ShoppingCart{
         if(newLine)
             sb.append("\n");
     }
+
+    private List<String[]> convertItemsToTableLines(){
+
+        List<String[]> lines = new ArrayList<String[]>();
+        int index = 0;
+        for (Item item : items) {
+            lines.add(new String[]{
+                    String.valueOf(++index),
+                    item.getTitle(),
+                    MONEY.format(item.getPrice()),
+                    String.valueOf(item.getQuantity()),
+                    (item.getDiscount() == 0) ? "-" : (String.valueOf(item.getDiscount()) + "%"),
+                    MONEY.format(item.getTotalPrice())
+            });
+        }
+        return lines;
+    }
     /**
      * Formats shopping price.
      * @return string as lines, separated with \n,
@@ -85,36 +102,19 @@ public class ShoppingCart{
      *    last line: 31                              $999050.60
      * if no items in cart returns "No items." string.
      */
-    private String getFormattedTicketTable(double total){
+    private String getFormattedTicketTable(){
 
         if (items.size() == 0)
             return "No items.";
 
-        List<String[]> lines = new ArrayList<String[]>();
         String[] header = {"#","Item","Price","Quan.","Discount","Total"};
         int[] align = new int[] { 1, -1, 1, 1, 1, 1 };
-        // formatting each line
-        total = 0.00;
         int index = 0;
-        for (Item item : items){
-            int discount = calculateDiscount(item.getItemType(), item.getQuantity());
-            item.setTotalPrice(item.getPrice() * item.getQuantity() * (100.00 - item.getDiscount())/100.00);
-            lines.add(new String[]{
-                    String.valueOf(++index),
-                    item.getTitle(),
-                    MONEY.format(item.getPrice()),
-                    String.valueOf(item.getQuantity()),
-                    (item.getDiscount() == 0) ? "-" : (String.valueOf(item.getDiscount()) + "%"),
-                    MONEY.format(item.getTotalPrice())
-            });
-            total += item.getTotalPrice();
-        }
-
-        String[] footer = {
-                String.valueOf(index),
+        double total = 0.00;
+        List<String[]> lines = convertItemsToTableLines();
+        String[] footer = { String.valueOf(index),
                 "","","","",
-                MONEY.format(total)
-        };
+                MONEY.format(total) };
 
         // column max length
         int[] width = new int[]{0,0,0,0,0,0};
@@ -227,10 +227,12 @@ public class ShoppingCart{
 
         public double getPrice(){
             this.price = price;
+            return price;
         }
 
         public int getQuantity(){
             this.quantity = quantity;
+            return quantity;
         }
 
         public void setQuantity(int quantity){
