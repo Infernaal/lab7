@@ -96,8 +96,8 @@ public class ShoppingCart{
         int index = 0;
 
         for (Item item : items) {
-            item.setDiscount( calculateDiscount(item.getItemType(), item.getQuantity());
-            item.setTotalPrice(item.getPrice() * item.getQuantity() * (100.00 – item.getDiscount()) / 100.00;
+            item.setDiscount( calculateDiscount(item.getItemType(), item.getQuantity()));
+            item.setTotalPrice(item.getPrice() * item.getQuantity() * (100.00 - item.getDiscount()) / 100.00);
             lines.add(new String[]{
                     String.valueOf(++index),
                     item.getTitle(),
